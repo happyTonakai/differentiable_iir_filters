@@ -2,6 +2,7 @@ import torch
 from torch.nn import Module, Parameter
 from torch import FloatTensor
 
+
 class DOnePoleCell(Module):
     def __init__(self, a1=0.5, b0=1.0, b1=0.0):
         super(DOnePoleCell, self).__init__()
@@ -19,6 +20,7 @@ class DOnePoleCell(Module):
         state = self.b1 * input + self.a1 * output
         return output, state
 
+
 class DOnePole(Module):
     def __init__(self):
         super(DOnePole, self).__init__()
@@ -35,11 +37,11 @@ class DOnePole(Module):
 
         out_sequence = torch.zeros(input.shape[:-1]).to(input.device)
         for s_idx in range(sequence_length):
-            out_sequence[:, s_idx], states = self.cell(input[:, s_idx].view(-1), states)
+            out_sequence[:, s_idx], states = self.cell(
+                input[:, s_idx].view(-1), states)
         out_sequence = out_sequence.unsqueeze(-1)
 
         if initial_states is None:
             return out_sequence
         else:
             return out_sequence, states
-

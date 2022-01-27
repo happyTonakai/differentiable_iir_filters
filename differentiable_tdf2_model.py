@@ -5,6 +5,7 @@ from torch.nn import Module, ModuleList, Parameter
 from torch import FloatTensor
 from numpy.random import uniform
 
+
 class DTDFIICell(Module):
     def __init__(self):
         super(DTDFIICell, self).__init__()
@@ -19,12 +20,14 @@ class DTDFIICell(Module):
 
     def forward(self, input, v):
         output = input * self.b0 + v[:, 0]
-        v = self._cat([(input * self.b1 + v[:, 1] - output * self.a1), (input * self.b2 - output * self.a2)])
+        v = self._cat([(input * self.b1 + v[:, 1] - output *
+                        self.a1), (input * self.b2 - output * self.a2)])
         return output, v
 
     def init_states(self, size):
         v = torch.zeros(size, 2).to(next(self.parameters()).device)
         return v
+
 
 class DTDFII(Module):
     def __init__(self):
@@ -42,7 +45,8 @@ class DTDFII(Module):
 
         out_sequence = torch.zeros(input.shape[:-1]).to(input.device)
         for s_idx in range(sequence_length):
-            out_sequence[:, s_idx], states = self.cell(input[:, s_idx].view(-1), states)
+            out_sequence[:, s_idx], states = self.cell(
+                input[:, s_idx].view(-1), states)
         out_sequence = out_sequence.unsqueeze(-1)
 
         if initial_states is None:

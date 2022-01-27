@@ -5,6 +5,7 @@ from torch.nn import Module, Parameter, ModuleList
 from torch import FloatTensor
 from numpy.random import uniform
 
+
 class DSVFCell(Module):
     def __init__(self, G=0.5, twoR=1, hp_gain=0.0, bp_gain=0.0, lp_gain=1.0):
         args = locals()
@@ -21,8 +22,11 @@ class DSVFCell(Module):
         bp_out = coeff1 * input_minus_v1 + coeff0 * v[:, 0]
         lp_out = self.G * bp_out + v[:, 1]
         hp_out = x - lp_out - self.twoR * bp_out
-        v = torch.cat([(2 * bp_out).unsqueeze(-1), (2 * lp_out).unsqueeze(-1)], dim=-1) - v
-        y = self.master_gain * (self.hp_gain * hp_out + self.bp_gain * self.twoR * bp_out + self.lp_gain * lp_out)
+        v = torch.cat([(2 * bp_out).unsqueeze(-1),
+                       (2 * lp_out).unsqueeze(-1)], dim=-1) - v
+        y = self.master_gain * \
+            (self.hp_gain * hp_out + self.bp_gain *
+             self.twoR * bp_out + self.lp_gain * lp_out)
         return y, v
 
     def init_states(self, size):
@@ -41,10 +45,12 @@ class DSVFCell(Module):
 
         return coeff0, coeff1
 
+
 class DSVF(Module):
     def __init__(self, G=0.5, twoR=1, hp_gain=1.0, bp_gain=1.0, lp_gain=1.0):
         super(DSVF, self).__init__()
-        self.cell = DSVFCell(G=G, twoR=twoR, hp_gain=hp_gain, bp_gain=bp_gain, lp_gain=lp_gain)
+        self.cell = DSVFCell(G=G, twoR=twoR, hp_gain=hp_gain,
+                             bp_gain=bp_gain, lp_gain=lp_gain)
 
     def forward(self, input, initial_states=None):
         batch_size = input.shape[0]
@@ -57,7 +63,8 @@ class DSVF(Module):
 
         out_sequence = torch.zeros(input.shape[:-1]).to(input.device)
         for s_idx in range(sequence_length):
-            out_sequence[:, s_idx], states = self.cell(input[:, s_idx].view(-1), states)
+            out_sequence[:, s_idx], states = self.cell(
+                input[:, s_idx].view(-1), states)
         out_sequence = out_sequence.unsqueeze(-1)
 
         if initial_states is None:
